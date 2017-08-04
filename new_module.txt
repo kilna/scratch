@@ -1,0 +1,9 @@
+
+SEE:
+
+http://search.cpan.org/~xsawyerx/Module-Starter-1.58/bin/module-starter
+http://search.cpan.org/~kwilliams/Module-Build/lib/Module/Build/Authoring.pod
+
+module-starter --author='Anthony Kilna' --email='anthony@kilna.com' --builder='Module::Build' --verbose --module='NAME'
+
+Once created make sure to change the version number from 1.0 to 1.0.0
