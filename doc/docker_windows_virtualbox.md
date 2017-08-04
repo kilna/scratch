@@ -1,4 +1,4 @@
-# Docker + VirtualBox (Instead of Hyper-V)
+# Docker + VirtualBox on Windows 10 (Instead of Hyper-V)
 
 * Uninstall "Docker for Windows" if it has been installed already
 * Disable Hyper-V + restart
