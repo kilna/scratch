@@ -17,7 +17,7 @@
 # Copyright Kilna - Released under Creative Commons CC-BY Atribution license
 
 bool=${bool:-0}  # Flag (boolean, set to 0 if not already set via env,
-                 #    set by +b or --true unset by -b or --false )
+                 #    set by +b or --true, unset by -b or --false )
 scalar="default" # Single parameter (only one value, set by --scalar val )
 array=()         # Multiple parameter (appears more than once, added to array
                  #    set by passing --array val1 --array val2 )
