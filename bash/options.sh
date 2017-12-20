@@ -1,30 +1,44 @@
 #!/bin/bash
 
-param="default" # Single Parameter (only one value)
-multi=()        # Multiple parameter (can appear on command line more than once, will be added to array) 
-flag=${flag:-0} # Flag (boolean, set to 0 if not already set as an environment variable)
+# Pure bash, huffman-coded option handling
 
-while true; do
-  case "$1" in
-    -p|--param)    shift; param="$1" ;; 
-    --param=*)     param="${1#*=}" ;;
-    -m|--multi)    shift; multi+=("$1") ;;
-    --multi=*)     multi+=("${1#*=}") ;;
-    -f|--flag)     flag=1 ;; 
-    -n|--no-flag)  flag=0 ;; 
-    --)            shift; break ;;   # Explicit end of options
-    *)             break ;;          # Implicit end of known options
-  esac
-  shift
+bool=${bool:-0}  # Flag (boolean, set to 0 if not already set via env, 
+                 #    set by --true, unset by --false )
+scalar="default" # Single parameter (only one value, set by --scalar val )
+array=()         # Multiple parameter (appears more than once, added to array
+                 #    set by passing --array val1 --array val2 )
+declare -A hash  # Hash parameter (appears more than once, associative array
+                 #   set by passing --hash key1=val1 --hash --key2=val2  )
+
+# Define opt array + element access + hash setting util function
+opt=(); thisopt(){ echo "${opt[0]}"; }; shiftopt() { opt=("${opt[@]:1}"); };
+hashset() { hashname=$1; kv=$2; eval $hashname"[${kv%%=*}]='${kv#*=}'"; };
+# Load up $@ into $opts array, changing any --foo=bar opt into "--foo" "bar"
+addopt() { [[ "$1" == '--'*'='* ]] && opt+=(${1%%=*} ${1#*=}) || opt+=($1); };
+for option in "$@"; do addopt "$option"; done
+
+while true; do case $(thisopt) in
+
+  -s|--scalar) shiftopt; scalar=$(thisopt); shiftopt ;;
+  -a|--array)  shiftopt; array+=($(thisopt)); shiftopt ;;
+  -h|--hash)   shiftopt; hashset hash $(thisopt); shiftopt ;;
+  -t|--true)   shiftopt; bool=1 ;;
+  -f|--false)  shiftopt; bool=0 ;;
+  --)          shiftopt; break ;; # Explicit end of options
+  -?*)         echo "Unknown option "$(thisopt) 1>&2; exit 1 ;;
+  *)           break ;; # Implicit end of options
+
+esac; done
+
+echo "bool => $bool"
+echo "scalar => $scalar"
+for elem in "${array[@]}"; do
+  echo "array => $elem"
 done
-
-# At this point $@ only has unknown options in it
-for opt in "$@"; do
-  echo "Unknown param $opt"
+for key in "${!hash[@]}"; do
+  echo "hash => $key = ${hash[$key]}"
 done
-
-echo "foo=$foo"
-echo "bar=$bar"
-for m in "${multi[@]}"; do
-  echo "multi=>$m"
+# At this point $opt array only has remaining non-option entries from $@
+for option in "${opt[@]}"; do
+  echo "opt => $option"
 done
