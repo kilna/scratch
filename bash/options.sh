@@ -45,6 +45,8 @@ while true; do case "$(option)" in
 
 esac; done
 
+#set -- "${opt[@]}" # Uncomment to reset the $@ array to $opt (remainder)
+
 echo "bool => $bool"
 echo "scalar => $scalar"
 for elem in "${array[@]}"; do
