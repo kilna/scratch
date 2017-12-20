@@ -27,21 +27,21 @@ declare -A hash  # Hash parameter (appears more than once, associative array
 # Load $@ into $opt array, changing --foo=bar options into separate --foo bar
 addopt(){ [[ "$1" == --*=* ]] && opt+=("${1%%=*}" "${1#*=}") || opt+=("$1"); }
 opt=(); for option in "$@"; do addopt "$option"; done
-# thisopt - get current opt element / shiftopt - shift opt array 1 elem left
-thisopt(){ echo "${opt[0]}"; }; shiftopt(){ opt=("${opt[@]:1}"); }
-# Set a hash key value pair based on a key=val string, remove if bash < 4.0
-hashset(){ eval $1"['${2%%=*}']='${2#*=}'"; }
+optshift(){ opt=("${opt[@]:1}"); } # Shift $opt array 1 element left
+option(){ echo "${opt[0]}"; } # Current option (index 0 in $opt array)
+# Set key to value in hash based on a key=val string, remove if bash < 4.0
+hashset(){ eval "$1['${2%%=*}']='${2#*=}'"; }
 
-while true; do case "$(thisopt)" in
+while true; do case "$(option)" in
 
-  -s|--scalar) shiftopt; scalar="$(thisopt)"; shiftopt ;;
-  -a|--array)  shiftopt; array+=("$(thisopt)"); shiftopt ;;
-  -h|--hash)   shiftopt; hashset hash "$(thisopt)"; shiftopt ;;
-  +b|--true)   shiftopt; bool=1 ;;
-  -b|--false)  shiftopt; bool=0 ;;
-  --)          shiftopt; break ;; # Explicit end of options
-  -?*)         echo "Unknown option: $(thisopt)" 1>&2; exit 1 ;;
-  *)           break ;; # Implicit end of options
+  -s|--scalar) optshift; scalar="$(option)"; optshift ;;
+  -a|--array)  optshift; array+=("$(option)"); optshift ;;
+  -h|--hash)   optshift; hashset hash "$(option)"; optshift ;;
+  +b|--true)   optshift; bool=1 ;;
+  -b|--false)  optshift; bool=0 ;;
+  --)          optshift; break ;; # Explicit end of options - nix if unneeded
+  -?*)         echo "Unknown option: $(option)" 1>&2; exit 1 ;; 
+  *)           break ;; # Implicit end of options - use exit 1 here if invalid
 
 esac; done
 
