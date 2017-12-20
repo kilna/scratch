@@ -36,7 +36,7 @@ while true; do case "$(option)" in
 
   -s|--scalar) optshift; scalar="$(option)"; optshift ;;
   -a|--array)  optshift; array+=("$(option)"); optshift ;;
-  -h|--hash)   optshift; hashset hash "$(option)"; optshift ;;
+  -h|--hash)   optshift; hashset hash "$(option)"; optshift ;; # bash > 4.0
   +b|--true)   optshift; bool=1 ;;
   -b|--false)  optshift; bool=0 ;;
   --)          optshift; break ;; # Explicit end of options - nix if unneeded
