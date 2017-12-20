@@ -10,12 +10,13 @@ array=()         # Multiple parameter (appears more than once, added to array
 declare -A hash  # Hash parameter (appears more than once, associative array
                  #   set by passing --hash key1=val1 --hash --key2=val2  )
 
-# Define opt array + element access + hash setting util function
-opt=(); thisopt(){ echo "${opt[0]}"; }; shiftopt() { opt=("${opt[@]:1}"); };
-hashset() { hashname=$1; kv=$2; eval $hashname"[${kv%%=*}]='${kv#*=}'"; };
-# Load up $@ into $opts array, changing any --foo=bar opt into "--foo" "bar"
+# Load $@ into $opt array, changing --foo=bar options into separate --foo bar
 addopt() { [[ "$1" == '--'*'='* ]] && opt+=(${1%%=*} ${1#*=}) || opt+=($1); };
-for option in "$@"; do addopt "$option"; done
+opt=(); for option in "$@"; do addopt "$option"; done
+# thisopt - get current opt element / shiftopt - shift opt array 1 elem left
+thisopt(){ echo "${opt[0]}"; }; shiftopt() { opt=("${opt[@]:1}"); };
+# Set a hash key value pair based on a key=val string
+hashset() { hashname=$1; kv=$2; eval $hashname"[${kv%%=*}]='${kv#*=}'"; };
 
 while true; do case $(thisopt) in
 
@@ -27,7 +28,7 @@ while true; do case $(thisopt) in
   --)          shiftopt; break ;; # Explicit end of options
   -?*)         echo "Unknown option "$(thisopt) 1>&2; exit 1 ;;
   *)           break ;; # Implicit end of options
-
+  
 esac; done
 
 echo "bool => $bool"
