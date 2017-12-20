@@ -2,17 +2,18 @@
 
 # Pure bash, huffman-coded command line option handling with:
 #
-#  * Short and long options using a single concise syntax
+#  * Short and long options specified using a single concise syntax
 #  * No external dependencies (no reliance on getopt, easy to copy + paste)
 #  * Very few additional lines are required compared to traditional bash
 #      methods of parameter handling
+#  * Single-letter / one-dash flags can be bundled (-abc is treated  -a -b -c)
 #  * --opt=val (equal sign) and --opt val (no equal sign) support without
 #      needing separate case declarations for each
 #  * --opt key=val (and --opt=key=val) for setting associative array pairs
 #      using very easy to read syntax (bash >= 4.0 only)
 #  * Support for non-dash options such as +x instead of -x
-#  * Pass-through unrecognized post-options as an array ($opt)
-#  * Perservation of original $@ array
+#  * Pass-through remaining unrecognized post-options as an array ($opt)
+#  * Perservation of original $@ array or reset $@ to post-options
 #
 # Copyright Kilna - Released under Creative Commons CC-BY Atribution license
 
@@ -27,22 +28,33 @@ declare -A hash  # Hash parameter (appears more than once, associative array
 
 # Load $@ into $opt array, splitting --foo=bar options into separate --foo bar
 # and splitting bundled -abc into separate -a -b -c
-opt=(); for o in "$@"; do [[ "$o" == --*=* ]] && \
-opt+=("${1%%=*}" "${1#*=}") || [[ "$o" =~ ^-([^-]*)$ && "${BASH_REMATCH[1]}" \
-=~ ${BASH_REMATCH[1]//?/(.)} ]] && opt+=($(for x in "${BASH_REMATCH[@]:1}"; \
-do echo -n "-$x "; done)) || opt+=("$o"); done;
+opt=();
+for o in "$@"; do
+  [[ "$o" == --*=* ]] \
+    && opt+=("${1%%=*}" "${1#*=}") \
+    || [[ "$o" =~ ^-([^-]*)$ && "${BASH_REMATCH[1]}" =~ ${BASH_REMATCH[1]//?/(.)} ]] \
+      && opt+=($(for x in "${BASH_REMATCH[@]:1}"; do echo -n "-$x "; done)) \
+      || opt+=("$o")
+done
+
+for option in "${opt[@]}"; do
+  echo "opt => $option"
+done
+
 optshift () { opt=("${opt[@]:1}"); }; # Shift $opt array 1 element left
-option () { echo "${opt[0]}"; }; # Current option (index 0 in $opt array)
+option () { echo -n "${opt[0]}"; }; # Current option (index 0 in $opt array)
+optval () { optshift; echo -n "${opt[0]}"; optshift; }; # Process options having values
+moreopts () { (( "${#opt}" >= 1 )); }; # Are there remaining options?
 # Set key to value in hash based on a key=val string, remove if bash < 4.0
-hashset () { eval "$1['${2%%=*}']='${2#*=}'"; };
+hashopt () { local kv="$(optval)"; eval "$1['${kv%%=*}']='${kv#*=}'"; };
 
-while true; do case "$(option)" in
+while moreopts; do case "$(option)" in
 
-  -s|--scalar) optshift; scalar="$(option)"; optshift ;;
-  -a|--array)  optshift; array+=("$(option)"); optshift ;;
-  -h|--hash)   optshift; hashset hash "$(option)"; optshift ;; # bash >= 4.0
-  +b|--true)   optshift; bool=1 ;;
-  -b|--false)  optshift; bool=0 ;;
+  -s|--scalar) scalar="$(optval)" ;;
+  -a|--array)  array+=("$(optval)") ;;
+  -h|--hash)   hashopt hash ;; # bash >= 4.0 only
+  +b|--true)   bool=1; optshift ;;
+  -b|--false)  bool=0; optshift ;;
   --)          optshift; break ;; # Explicit end of options, nix if unneeded
   -?*)         echo "Unknown option: $(option)" 1>&2; exit 1 ;;
   *)           break ;; # Implicit end of opts, exit 1 here to whitelist opts
