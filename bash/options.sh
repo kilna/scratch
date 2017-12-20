@@ -32,7 +32,7 @@ thisopt(){ echo "${opt[0]}"; }; shiftopt(){ opt=("${opt[@]:1}"); }
 # Set a hash key value pair based on a key=val string, remove if bash < 4.0
 hashset(){ eval $1"['${2%%=*}']='${2#*=}'"; }
 
-while true; do case $(thisopt) in
+while true; do case "$(thisopt)" in
 
   -s|--scalar) shiftopt; scalar="$(thisopt)"; shiftopt ;;
   -a|--array)  shiftopt; array+=("$(thisopt)"); shiftopt ;;
