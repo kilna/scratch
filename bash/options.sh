@@ -49,13 +49,7 @@ esac; done
 
 echo "bool => $bool"
 echo "scalar => $scalar"
-for elem in "${array[@]}"; do
-  echo "array => $elem"
-done
-for key in "${!hash[@]}"; do
-  echo "hash => $key = ${hash[$key]}"
-done
+for elem in "${array[@]}"; do echo "array => $elem"; done
+for key in "${!hash[@]}"; do echo "hash => $key = ${hash[$key]}"; done
 # At this point $opt array only has remaining non-option entries from $@
-for option in "${opt[@]}"; do
-  echo "opt => $option"
-done
+for option in "${opt[@]}"; do echo "opt => $option"; done
