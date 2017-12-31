@@ -3,7 +3,7 @@
 # Pure bash, huffman-coded command line option handling with:
 #
 #  * Short and long options specified using a single concise syntax
-#  * No external dependencies (no reliance on getopt, easy to copy + paste)
+#  * No external dependencies (reliance on getopt, easy to copy + paste)
 #  * Very few additional lines are required compared to traditional bash
 #      methods of parameter handling
 #  * Single-letter / one-dash flags can be bundled (-abc is treated  -a -b -c)
@@ -26,13 +26,10 @@ declare -A hash  # Hash parameter (appears more than once, associative array
                  #   set by passing --hash key1=val1 --hash --key2=val2
                  #   bash >= 4.0 only)
 
-args=()
-for a in "$@"; do
-  if [[ "$a" == --*=* ]]; then args+=("${a%%=*}" "${a#*=}"); continue; fi
-  if [[ "$a" !~ ^-([^-]*)$ ]]; then args+=("$a"); continue; fi
-#  if [[ "${BASH_REMATCH[1]}" =~ ${BASH_REMATCH[1]//?/(.)} ]]; then
-#    args+=($(for x in "${BASH_REMATCH[@]:1}"; do echo -n "-$x "; done))
-#  fi
+args=(); for a in "$@"; do
+  [[ "$a" == --*=* ]] && args+=("${a%%=*}" "${a#*=}") && continue
+  [[ ! "$a" =~ ^-([^-]+)$ ]] && args+=("$a") && continue
+  args+=( $( for (( i=1; i<${#a}; i++ )); do echo "-${a:$i:1}"; done ) )
 done
 arg()      { echo "${args[0]}"; };
 nextarg()  { args=("${args[@]:1}"); };
