@@ -26,14 +26,21 @@ declare -A hash  # Hash parameter (appears more than once, associative array
                  #   set by passing --hash key1=val1 --hash --key2=val2
                  #   bash >= 4.0 only)
 
-args=(); for a in "$@"; do [[ "$a" == --*=* ]] && args+=("${a%%=*}" "${a#*=}") \
-|| [[ "$a" =~ ^-([^-]*)$ && "${BASH_REMATCH[1]}" =~ ${BASH_REMATCH[1]//?/(.)} \
-]] && args+=($(for x in "${BASH_REMATCH[@]:1}"; do echo -n "-$x "; done)) \
-|| args+=("$a"); done; arrayopt(){ nextarg; eval "$1+=('$(arg)')"; nextarg; }; 
-flagopt(){ nextarg; eval "$1=${2:-1}"; }; nextarg(){ args=("${args[@]:1}"); };
-arg(){ echo "${args[0]}"; }; opt(){ nextarg; eval "$1='$(arg)'"; nextarg; };
-hashopt(){ nextarg; eval "$1['${args[0]%%=*}']='${args[0]#*=}'"; nextarg; };
-argsleft(){ (( "${#args[@]}" > 0 )); };
+args=()
+for a in "$@"; do
+  if [[ "$a" == --*=* ]]; then args+=("${a%%=*}" "${a#*=}"); continue; fi
+  if [[ "$a" !~ ^-([^-]*)$ ]]; then args+=("$a"); continue; fi
+#  if [[ "${BASH_REMATCH[1]}" =~ ${BASH_REMATCH[1]//?/(.)} ]]; then
+#    args+=($(for x in "${BASH_REMATCH[@]:1}"; do echo -n "-$x "; done))
+#  fi
+done
+arg()      { echo "${args[0]}"; };
+nextarg()  { args=("${args[@]:1}"); };
+argsleft() { (( "${#args[@]}" > 0 )); };
+opt()      { nextarg; eval "$1='$(arg)'"; nextarg; };
+flagopt()  { nextarg; eval "$1=${2:-1}"; };
+arrayopt() { nextarg; eval "$1+=('$(arg)')"; nextarg; }; 
+hashopt()  { nextarg; eval "$1['${args[0]%%=*}']='${args[0]#*=}'"; nextarg; };
 
 while argsleft; do case "$(arg)" in
 
