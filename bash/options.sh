@@ -26,10 +26,11 @@ declare -A hash  # Hash parameter (appears more than once, associative array
                  #   set by passing --hash key1=val1 --hash --key2=val2
                  #   bash >= 4.0 only)
 
-args=(); for a in "$@"; do
-  [[ "$a" == --*=* ]] && args+=("${a%%=*}" "${a#*=}") && continue
-  [[ ! "$a" =~ ^-([^-]+)$ ]] && args+=("$a") && continue
-  args+=( $( for (( i=1; i<${#a}; i++ )); do echo "-${a:$i:1}"; done ) )
+args=(); for (( i=1; i<=$#; i++ )); do a="${@:$i:1}"
+  [[   "$a" == '--'       ]] && args+=("${@:$i}")            && break
+  [[   "$a" == '--'*'='*  ]] && args+=("${a%%=*}" "${a#*=}") && continue
+  [[ ! "$a" =~ ^-([^-]+)$ ]] && args+=("$a")                 && continue
+  args+=( $( for (( x=1; x<${#a}; x++ )); do echo "-${a:$x:1}"; done ) )
 done
 arg()      { echo "${args[0]}"; };
 nextarg()  { args=("${args[@]:1}"); };
