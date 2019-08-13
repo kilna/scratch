@@ -51,5 +51,5 @@ opt() {
   elif [[ "$1" == *'='* ]]; then echo "${1#*=}"; else echo "$2"; return 1; fi
 }
 
-
-# MIT license, but it'd be nice if you include the link to here
+# Copyright 2019 Kilna, Anthony; released under MIT license https://opensource.org/licenses/MIT
+# ...do what you like with it, but it would be nice if you include the link to here
