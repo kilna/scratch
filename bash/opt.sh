@@ -44,12 +44,12 @@ opt() {
 
 # Compact version:
 
-# Gets the value of the next --arg or -a style option in $@
+# Gets the value of the next option in $@, fails if an additional shift is needed
 # Details at https://github.com/kilna/scratch/blob/master/bash/opt.sh
-opt() { [[ "${1#*=}" ]] && echo "${1#*=}" && return 0 # -a=VAL or --arg=VAL
-[[ "${#1}" -gt 2 && "${1:1:1}" != '-' ]] && echo "${1:2}" && return 0 # -aVAL
-echo "$2"; return 1; } # -a VAL or --arg VAL (fail to indicate shift needed)
-
+opt() {
+  if [[ "${#1}" -gt 2 && "${1:1:1}" != '-' && "${1:2:1}" != '=' ]]; then echo "${1:2}"
+  elif [[ "$1" == *'='* ]]; then echo "${1#*=}"; else echo "$2"; return 1; fi
+}
 
 # Copyright 2019 Kilna, Anthony; released under MIT license https://opensource.org/licenses/MIT
 # ...do what you like with it, but it would be nice if you include the link to here
