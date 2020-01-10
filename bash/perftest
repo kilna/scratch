@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+
+# Some results...
+# https://docs.google.com/spreadsheets/d/1MbtJRJxCh3lZ8jhF-hh0OemCwra54yTDBjL2Zn3o-lg/edit#gid=0
+
+run_time="${1:-5}"
+
+func() {
+  echo "contents!"
+  echo "contents!"
+  echo "contents!"
+  echo "contents!"
+  echo "contents!"
+  echo "contents!"
+  echo "contents!"
+  echo "contents!"
+}
+
+func2() {
+  while read -r line; do
+    : ;
+  done < /dev/stdin
+}
+
+start=$SECONDS
+count=0
+while (( ( $SECONDS - $start ) < $run_time )); do
+  func >/dev/null
+  count=$(( $count + 1 ))
+done
+echo "Ran $count in $run_time seconds"
+
+
+start=$SECONDS
+count=0
+while (( ( $SECONDS - $start ) < $run_time )); do
+  while IFS='' read -r var; do
+    echo '' >/dev/null
+  done < <(func)
+  count=$(( $count + 1 ))
+done
+echo "Read (loop -r) $count in $run_time seconds"
+
+
+start=$SECONDS
+count=0
+while (( ( $SECONDS - $start ) < $run_time )); do
+  IFS='' read var < <(func)
+  count=$(( $count + 1 ))
+done
+echo "Read (slurp) $count in $run_time seconds"
+
+
+start=$SECONDS
+count=0
+while (( ( $SECONDS - $start ) < $run_time )); do
+  IFS='' read -r var < <(func)
+  count=$(( $count + 1 ))
+done
+echo "Read (slurp -r) $count in $run_time seconds"
+
+
+start=$SECONDS
+count=0
+while (( ( $SECONDS - $start ) < $run_time )); do
+  var="`func`"
+  count=$(( $count + 1 ))
+done
+echo "Captured via \`\` $count in $run_time seconds"
+
+
+start=$SECONDS
+count=0
+while (( ( $SECONDS - $start ) < $run_time )); do
+  var="$(func)"
+  count=$(( $count + 1 ))
+done
+echo "Captured via \$() $count in $run_time seconds"
+
+
+start=$SECONDS
+count=0
+while (( ( $SECONDS - $start ) < $run_time )); do
+  eval 'export var=$(func)'
+  count=$(( $count + 1 ))
+done
+echo "Eval captured $count in $run_time seconds"
+
+
+start=$SECONDS
+count=0
+while (( ( $SECONDS - $start ) < $run_time )); do
+  eval 'func > /dev/null'
+  count=$(( $count + 1 ))
+done
+echo "Evaled $count in $run_time seconds"
+
+
+start=$SECONDS
+count=0
+while (( ( $SECONDS - $start ) < $run_time )); do
+  func | func2
+  count=$(( $count + 1 ))
+done
+echo "Piped $count in $run_time seconds"
+
+
