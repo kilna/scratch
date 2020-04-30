@@ -13,7 +13,7 @@
 ### Usage
 
 usage() {
-  if [[ "${1:-}" ]]; then warn "$1"; fi
+  if [[ "${1:-}" ]]; then error "$1"; fi
   cat <<EOF
 USAGE: $(basename $0) [ OPTIONS ]
 EOF
@@ -142,7 +142,8 @@ for var in BASH BASH_SOURCE dir script; do echo "$var: ${!var}"; done
 # Runs a command, if on a tty it will print a message and spinner on STDERR
 # until done, erasing itself with terminal backspaces upon completion
 # If not in a tty, it will print the message unadorned to STDERR and the
-# command output to STDOUT.
+# command output to STDOUT. Output and exit code cannot be captured so
+# success must be tested via other means out of band of the spinned command
 spin() {
   local msg=()
   local cmd=()
@@ -173,7 +174,6 @@ spin() {
     done
     for x in $(seq 0 $(( ${#msg} + 1 ))); do echo -en '\b \b' >&2; done
     sleep 0.03
-
   else
     # Run command in foreground
     echo "${msg[@]}" >&2
