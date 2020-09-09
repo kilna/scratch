@@ -4,6 +4,14 @@
 
 
 
+# Update this script by:
+#   curl -sLO https://raw.githubusercontent.com/kilna/scratch/master/bash/common_idioms.sh
+# I edit this script in a browser by going to:
+#   https://github.com/kilna/scratch/edit/master/bash/common_idioms.sh
+
+
+
+
 ### Fail if any command fails, unset vars are used, or pipes fail in the middle
 
 # set -e -u -o pipefail
