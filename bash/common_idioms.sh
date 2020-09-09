@@ -5,7 +5,7 @@
 
 
 # Update this script by:
-#   curl -sLO https://rawgithub.com/kilna/scratch/master/bash/common_idioms.sh
+#   curl -sLO https://rawcdn.git.rest/kilna/scratch/master/bash/common_idioms.sh
 
 # I edit this script in a browser by going to:
 #   https://github.com/kilna/scratch/edit/master/bash/common_idioms.sh
