@@ -6,6 +6,7 @@
 
 # Update this script by:
 #   curl -sLO https://kilna.github.io/scratch/bash/common_idioms.sh
+#   chmod +x common_idioms.sh
 
 # I edit this script in a browser by going to:
 #   https://github.com/kilna/scratch/edit/master/bash/common_idioms.sh
