@@ -224,11 +224,10 @@ spin() {
 }
 
 # Example
-perlcmd='$|++; for(1..3){ print "$_\n"; print STDERR "ERR: $_\n"; sleep 1 }'
 spin 'Test spinner with tty' -- \
-  perl -e "$perlcmd"
+  perl -e '$|++; use Time::HiRes qw(sleep); for(1..15) { print "$_\n"; sleep 0.2; }'
 spin 'Test spinner does not spin when piped from (no tty)' -- \
-  perl -e "$perlcmd" | cat -
+  perl -e '$|++; for(1..3){ print "$_\n"; print STDERR "ERR: $_\n"; }' | cat -
 
 
 
@@ -242,7 +241,10 @@ quiet_run() {
 }
 
 # Example
-echo 'Testing success...'
-quiet_run perl -e "$perlcmd"
-echo 'Testing fail...'
-quiet_run perl -e "$perlcmd; exit 1"
+echo 'Testing quiet_run success...'
+quiet_run perl -e 'print "OUT\n"; print "ERR\n"; exit 0'
+echo 'Testing quiet_run fail...'
+( quiet_run perl -e 'print "OUT\n"; print "ERR\n"; exit 1' )
+
+exit 0
+
