@@ -42,6 +42,7 @@ opt() {
   elif [[ "$1" == *'='* ]]; then echo "${1#*=}"; else echo "$2"; return 1; fi
 }
 
+# Example
 flag=0
 param='default_val'
 items=()
@@ -65,7 +66,7 @@ error() { echo "${ansi_error}$@${ansi_reset}" >&2; } # Print red to STDERR
 # Print red error line, with optional exit code (defaults to 1 if not provided)
 die() { error "${1:-}"; exit ${2:-1}; }
 
-# Tests
+# Example
 warn 'This is a warning!'
 error 'This is an error!'
 echo '... this is just a normal message ...'
@@ -104,7 +105,7 @@ shopt -s extglob
 dir="$(cd $(dirname ${BASH_SOURCE[0]}); echo $PWD)"
 script="${dir}/$(basename ${BASH_SOURCE[0]})"
 
-# Tests
+# Example
 echo "dir is $dir"
 echo "script is $script"
 
@@ -117,8 +118,40 @@ uc() {
   else echo "$1" | tr a-z A-Z ;fi
 }
 
-# Test
+# Example
 echo $(uc 'lowercase text turned uppercase!')
+
+
+
+### Undent
+
+# Un-indents piped input... whitespace found at the beginning of the first line
+# is used to remove indentation of all lines in the output
+undent() {
+  cat - | perl -e '$firstline=<STDIN>; ($indent)=($firstline =~ m/^(\s+)/);
+    foreach ( $firstline, <STDIN> ) { s/^$indent//; print; }'
+}
+
+# Example
+cat <<EOF | undent
+  foo
+    bar
+EOF
+
+
+
+### Prefix
+
+# Prefix a string to piped input (if passed spaces, can be used to indent)
+prefix() {
+  while IFS=$"\n" read -r line; do echo "$1${line}"; done
+}
+
+# Example
+cat <<EOF | prefix '[prefix] '
+foo
+  bar
+EOF
 
 
 
@@ -135,7 +168,7 @@ esc() {
   echo # End with a newline... this'll be removed it run from $(...) anyway
 }
 
-# Test
+# Example
 esc This '"is"' a 'test!'
 
 
@@ -190,6 +223,7 @@ spin() {
   fi
 }
 
+# Example
 perlcmd='$|++; for(1..3){ print "$_\n"; print STDERR "ERR: $_\n"; sleep 1 }'
 spin 'Test spinner with tty' -- \
   perl -e "$perlcmd"
@@ -207,9 +241,8 @@ quiet_run() {
   error "Failed:" $(esc "$@"); echo "$result" >&2; exit $exit
 }
 
+# Example
 echo 'Testing success...'
 quiet_run perl -e "$perlcmd"
 echo 'Testing fail...'
 quiet_run perl -e "$perlcmd; exit 1"
-
-
